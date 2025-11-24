@@ -1,7 +1,37 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { GradingResult } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// 安全获取 API Key 的辅助函数
+// 浏览器环境(Vite)使用 import.meta.env
+// Node 环境使用 process.env
+// 使用 try-catch 和类型检查防止 'process is not defined' 导致的白屏崩溃
+const getApiKey = (): string => {
+  try {
+    // @ts-ignore - 忽略 TS 检查，优先尝试 Vite 环境变量
+    if (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_KEY) {
+      // @ts-ignore
+      return import.meta.env.VITE_API_KEY;
+    }
+  } catch (e) {
+    // 忽略错误
+  }
+
+  try {
+    // 其次尝试 Node 环境变量（本地开发或特殊构建）
+    if (typeof process !== "undefined" && process.env && process.env.API_KEY) {
+      return process.env.API_KEY;
+    }
+  } catch (e) {
+    // 忽略错误
+  }
+
+  return "";
+};
+
+const apiKey = getApiKey();
+
+// 即使没有 Key 也先初始化，避免初始化时崩溃，但在实际调用时会由 SDK 抛出错误
+const ai = new GoogleGenAI({ apiKey: apiKey });
 
 const SCORING_RUBRIC = `
 13-15分: 译文准确表达了原文的意思。用词贴切，行文流畅，基本上无语言错误，仅有个别小错。
@@ -14,6 +44,11 @@ const SCORING_RUBRIC = `
 
 export const assessTranslation = async (chineseText: string, englishText: string): Promise<GradingResult> => {
   try {
+    // 运行时检查 Key
+    if (!apiKey) {
+      throw new Error("API Key 未配置。请在 Vercel 环境变量中添加 VITE_API_KEY。");
+    }
+
     const prompt = `
       你是一位资深的大学英语六级（CET-6）阅卷老师。请根据以下评分标准，对学生的翻译进行严格、专业的评分。
 
