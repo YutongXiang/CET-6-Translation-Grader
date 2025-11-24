@@ -1,37 +1,13 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { GradingResult } from "../types";
 
-// 安全获取 API Key 的辅助函数
-// 浏览器环境(Vite)使用 import.meta.env
-// Node 环境使用 process.env
-// 使用 try-catch 和类型检查防止 'process is not defined' 导致的白屏崩溃
-const getApiKey = (): string => {
-  try {
-    // @ts-ignore - 忽略 TS 检查，优先尝试 Vite 环境变量
-    if (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_KEY) {
-      // @ts-ignore
-      return import.meta.env.VITE_API_KEY;
-    }
-  } catch (e) {
-    // 忽略错误
-  }
+// 现在的 API Key 获取方式符合 Google GenAI SDK 规范
+// 同时也通过 vite.config.ts 的 define 配置兼容了浏览器环境
+const apiKey = process.env.API_KEY;
 
-  try {
-    // 其次尝试 Node 环境变量（本地开发或特殊构建）
-    if (typeof process !== "undefined" && process.env && process.env.API_KEY) {
-      return process.env.API_KEY;
-    }
-  } catch (e) {
-    // 忽略错误
-  }
-
-  return "";
-};
-
-const apiKey = getApiKey();
-
-// 即使没有 Key 也先初始化，避免初始化时崩溃，但在实际调用时会由 SDK 抛出错误
-const ai = new GoogleGenAI({ apiKey: apiKey });
+// 初始化 AI 客户端
+// 如果是在构建阶段没有 Key 也没关系，只有在调用 assessTranslation 时才会真正报错
+const ai = new GoogleGenAI({ apiKey: apiKey || "BUILD_TIME_PLACEHOLDER" });
 
 const SCORING_RUBRIC = `
 13-15分: 译文准确表达了原文的意思。用词贴切，行文流畅，基本上无语言错误，仅有个别小错。
@@ -45,8 +21,8 @@ const SCORING_RUBRIC = `
 export const assessTranslation = async (chineseText: string, englishText: string): Promise<GradingResult> => {
   try {
     // 运行时检查 Key
-    if (!apiKey) {
-      throw new Error("API Key 未配置。请在 Vercel 环境变量中添加 VITE_API_KEY。");
+    if (!apiKey || apiKey === "BUILD_TIME_PLACEHOLDER") {
+      throw new Error("API Key 未配置。请在 Vercel 环境变量中设置 VITE_API_KEY。");
     }
 
     const prompt = `
