@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>大学英语六级翻译评分系统</title>
+    <!-- 使用 Tailwind CDN 快速样式支持，生产环境建议在 postcss 中配置 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet">
     <style>
@@ -14,19 +15,60 @@
       .font-serif-sc {
         font-family: 'Noto Serif SC', serif;
       }
+      /* 错误提示框样式 */
+      #global-error-display {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 20px;
+        background-color: #fee2e2;
+        border-bottom: 2px solid #ef4444;
+        color: #b91c1c;
+        z-index: 9999;
+        font-family: monospace;
+        font-size: 14px;
+        white-space: pre-wrap;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
     </style>
-  <script type="importmap">
+    <!-- 全局错误捕获脚本：如果发生白屏，错误信息会直接显示在页面顶部 -->
+    <script>
+      window.onerror = function(msg, url, line, col, error) {
+        var errorBox = document.getElementById('global-error-display');
+        if (errorBox) {
+          errorBox.style.display = 'block';
+          errorBox.innerText = '⚠️ 程序发生错误 (Error):\n' + msg + '\n\n文件 (File): ' + url + '\n行号 (Line): ' + line + ':' + col;
+        }
+        return false;
+      };
+      
+      window.onunhandledrejection = function(event) {
+        var errorBox = document.getElementById('global-error-display');
+        if (errorBox) {
+          errorBox.style.display = 'block';
+          errorBox.innerText = '⚠️ 未捕获的 Promise 错误:\n' + event.reason;
+        }
+      };
+    </script>
+<script type="importmap">
 {
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.2.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0"
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
+    "vite": "https://aistudiocdn.com/vite@^7.2.4"
   }
 }
 </script>
 </head>
   <body>
+    <!-- 错误显示容器 -->
+    <div id="global-error-display"></div>
+    
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
