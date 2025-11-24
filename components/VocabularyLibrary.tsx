@@ -69,6 +69,55 @@ const VocabularyLibrary: React.FC<VocabularyLibraryProps> = ({ isOpen, onClose, 
     setFormContent('');
   };
 
+  const handleExport = () => {
+    if (items.length === 0) {
+      alert("表达库为空，无需导出");
+      return;
+    }
+
+    // 构建导出内容
+    let content = "========================================\n";
+    content += "      大学英语六级翻译 - 我的表达库      \n";
+    content += "========================================\n";
+    content += `导出日期: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}\n`;
+    content += `总条目数: ${items.length} 条\n\n`;
+
+    let hasContent = false;
+
+    VOCAB_CATEGORIES.forEach(category => {
+      // 找到该分类下的所有条目
+      const categoryItems = items.filter(item => item.category === category);
+      
+      if (categoryItems.length > 0) {
+        hasContent = true;
+        content += `\n【 ${category} 】\n`;
+        content += "----------------------------------------\n";
+        categoryItems.forEach((item, index) => {
+          content += `${index + 1}. ${item.content}\n`;
+        });
+        content += "\n";
+      }
+    });
+
+    if (!hasContent) {
+      content += "（暂无分类内容）\n";
+    }
+
+    content += "\n========================================\n";
+    content += "加油！坚持积累，六级必过！\n";
+
+    // 创建 Blob 对象并触发下载
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `CET6_表达库_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -82,11 +131,26 @@ const VocabularyLibrary: React.FC<VocabularyLibraryProps> = ({ isOpen, onClose, 
             </svg>
             表达积累库
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            {items.length > 0 && (
+              <button 
+                onClick={handleExport}
+                className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 shadow-sm"
+                title="导出为文本文件"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                导出 TXT
+              </button>
+            )}
+            <div className="h-6 w-px bg-slate-200 mx-1"></div>
+            <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-1 overflow-hidden">
