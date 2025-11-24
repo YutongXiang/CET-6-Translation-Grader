@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>大学英语六级翻译评分系统</title>
-    <!-- 使用 Tailwind CDN 快速样式支持，生产环境建议在 postcss 中配置 -->
+    <!-- 使用 Tailwind CDN 快速样式支持 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet">
     <style>
@@ -33,7 +33,7 @@
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       }
     </style>
-    <!-- 全局错误捕获脚本：如果发生白屏，错误信息会直接显示在页面顶部 -->
+    <!-- 全局错误捕获脚本 -->
     <script>
       window.onerror = function(msg, url, line, col, error) {
         var errorBox = document.getElementById('global-error-display');
@@ -52,15 +52,15 @@
         }
       };
     </script>
-<script type="importmap">
+  <script type="importmap">
 {
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.2.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
-    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
-    "vite": "https://aistudiocdn.com/vite@^7.2.4"
+    "vite": "https://aistudiocdn.com/vite@^7.2.4",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1"
   }
 }
 </script>
